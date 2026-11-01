@@ -382,7 +382,7 @@ token contract and must be evaluated from current on-chain records.
 Live test transactions exercised direct transfer, holder burn, EIP-2612
 permit, allowance transfer, and allowance burn. Permit replay and zero-address
 transfer rejection were also checked with non-mutating calls. The functional
-tests transferred 2 DAT and burned 2 DAT, so the current testnet supply is
+tests transferred 2 DAT and burned 2 DAT, so the recorded checkpoint supply is
 `999,999,998 DAT`; the contract's immutable initial-supply constant remains
 `1,000,000,000 DAT`.
 
@@ -401,11 +401,20 @@ allowance-based burns, unauthorized-burn rejection, EIP-2612 signed permits,
 expired and replayed permit rejection, EIP-712 domain data, and the absence of
 administrator mint, pause, upgrade, owner, and admin entry points.
 
-The live Base Sepolia checks are read-only and require no wallet key:
+The Base Sepolia verifier rechecks the recorded historical checkpoint and requires
+a matching compiled artifact. It is read-only and requires no wallet key:
 
 ```shell
 BASE_SEPOLIA_RPC_URL=https://sepolia.base.org npm run verify:base-sepolia
 ```
+
+The command no longer recompiles implicitly. It uses the included, reproduced
+historical reference artifact. The current CRLF developer build differs from that
+record and is refused if selected with `--artifact`. The reproduced reference
+matches the unchanged recorded hashes and passed a public historical recheck.
+[The November 2 verifier correction](docs/SEPOLIA_VERIFIER_2026-11-02.md) explains
+the false-PASS fix, exact rejection evidence, checkpoint output and the source
+newline diagnosis. Preserve the original record and expected hashes.
 
 ## Base Sepolia deployment
 

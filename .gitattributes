@@ -1,0 +1,2 @@
+# Keep the recorded reference artifact byte-identical on Windows and Unix.
+/deployments/reference/*.json -text

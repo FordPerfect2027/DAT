@@ -18,8 +18,9 @@ The affected commands are `verify-base-mainnet.js`,
 `inspect-approvals.js`. Twelve seconds is the limit for each network request,
 not a promise that a multi-request command or process startup finishes in that
 time. Solidity, deployment code, dependency versions and lockfiles are unchanged.
-The older deployment-artifact verifier `verify-base-sepolia.js` is outside this
-five-command correction; its existing transport is unchanged.
+The older deployment-artifact verifier `verify-base-sepolia.js` was outside this
+five-command checkpoint. Its subsequent [dedicated correction](SEPOLIA_VERIFIER_2026-11-02.md)
+adds the same body deadline alongside strict historical verification.
 
 ## Reproduce
 
