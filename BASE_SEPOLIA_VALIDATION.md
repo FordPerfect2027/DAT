@@ -5,10 +5,12 @@ exception as a successful rejection, including RPC failures. This was reproduced
 with fictional HTTP fixtures and fixed. It does not establish what occurred in
 the original September probes; an old rerun's PASS alone is insufficient evidence.
 The updated verifier checks the recorded historical checkpoint and exact ABI
-revert reasons. The current local build differs from the recorded artifact hashes
-and is refused if selected. A separate LF-only reproduction now matches both
+revert reasons. The earlier CRLF local build differed from the recorded artifact
+hashes and was refused. A separate LF-only reproduction matches both
 recorded hashes and passed public revalidation at block 46,922,886. It is included
-as the verifier's reference. See [the correction and output changes](docs/SEPOLIA_VERIFIER_2026-11-02.md).
+as the verifier's reference. The subsequent source LF policy makes the ordinary
+build match too. See [the correction and output changes](docs/SEPOLIA_VERIFIER_2026-11-02.md)
+and [source portability](docs/SOURCE_PORTABILITY_2026-11-02.md).
 
 This packet records the DATCORE public testnet deployment and gives an
 independent reviewer enough information to reproduce the read-only checks

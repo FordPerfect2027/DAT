@@ -1,5 +1,10 @@
 # Recorded Sepolia checkpoint verification — November 2, 2026
 
+Subsequent [source portability work](SOURCE_PORTABILITY_2026-11-02.md) fixes the
+ordinary developer build's newline mismatch described below. This page retains
+the sequence and evidence of the verifier correction; it is not a claim that
+the later normalized source still builds the earlier CRLF metadata.
+
 The old verifier counted every exception from each negative simulation as a
 successful rejection. A loopback fixture reproduced a real command printing
 `PASS` with both negative-path booleans true while the provider returned only
@@ -37,7 +42,7 @@ verification, not independent consensus, a security audit or mainnet approval.
 
 ## Matching artifacts and changed command behavior
 
-The installed current DAT build does **not** match the creation and normalized
+At this correction's start, the installed DAT build did **not** match the creation and normalized
 runtime hashes in `deployments/base-sepolia.json`. If that developer artifact is
 selected explicitly, the verifier reports `ARTIFACT_RECORD_MISMATCH` before
 contacting a provider. The expected hashes are
@@ -85,9 +90,9 @@ not full, source verification. That source-text difference is not silently treat
 as an exact source match. The compiler input, record hashes and public RPC result
 provide separate evidence for this reproduction.
 
-The ordinary developer build still uses CRLF source bytes in this checkout and
-therefore produces different metadata hashes. Fixing source newline portability
-across the token builds remains separate work; the pinned reference avoids replacing
+At this verifier checkpoint, the ordinary developer build used CRLF source bytes
+and produced different metadata hashes. The subsequent source portability change
+fixes that separately; the pinned reference avoids replacing
 the historical verification target with that newer output. This result does not
 complete real-wallet acceptance, independent review or a mainnet release decision.
 

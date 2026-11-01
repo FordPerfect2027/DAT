@@ -1,2 +1,5 @@
 # Keep the recorded reference artifact byte-identical on Windows and Unix.
 /deployments/reference/*.json -text
+
+# Solidity metadata hashes source bytes; use LF on every platform.
+/contracts/** text eol=lf

@@ -24,6 +24,7 @@ the read-only check independent of a fresh contract compilation and does not
 turn it into a security audit or proof of current balances.
 
 [The verifier correction and public recheck](../../docs/SEPOLIA_VERIFIER_2026-11-02.md)
-describe the evidence and remaining build-newline portability work. The combined
+describe the evidence. The later [source portability correction](../../docs/SOURCE_PORTABILITY_2026-11-02.md)
+also reproduces this reference through the ordinary build. The combined
 Wallet evidence collection retains the exact compiler-input hash, reconstruction
 method, diagnostics, failed baseline, passing regressions and public RPC receipt.
