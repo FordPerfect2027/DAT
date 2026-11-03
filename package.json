@@ -13,7 +13,7 @@
     "test": "node scripts/test-contracts.js",
     "typecheck": "tsc --noEmit",
     "check": "npm run test:source && npm run test:toolchain && npm run compile && npm run test && npm run typecheck && npm run test:read-only && npm run test:history",
-    "test:toolchain": "node --test integration/toolchain-data.test.mjs integration/zod-migration.test.mjs",
+    "test:toolchain": "node --test integration/toolchain-data.test.mjs integration/zod-migration.test.mjs integration/config-validation.test.mjs",
     "test:source": "node --test integration/source-portability.test.mjs integration/test-routing.test.mjs",
     "test:history": "node --test integration/history-compatibility.test.mjs",
     "cmc:market-context": "node scripts/cmc-market-context.ts",
