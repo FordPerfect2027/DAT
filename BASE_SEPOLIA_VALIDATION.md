@@ -1,5 +1,17 @@
 # Base Sepolia independent validation packet
 
+**November 2 verifier correction:** the former script treated any negative-probe
+exception as a successful rejection, including RPC failures. This was reproduced
+with fictional HTTP fixtures and fixed. It does not establish what occurred in
+the original September probes; an old rerun's PASS alone is insufficient evidence.
+The updated verifier checks the recorded historical checkpoint and exact ABI
+revert reasons. The earlier CRLF local build differed from the recorded artifact
+hashes and was refused. A separate LF-only reproduction matches both
+recorded hashes and passed public revalidation at block 46,922,886. It is included
+as the verifier's reference. The subsequent source LF policy makes the ordinary
+build match too. See [the correction and output changes](docs/SEPOLIA_VERIFIER_2026-11-02.md)
+and [source portability](docs/SOURCE_PORTABILITY_2026-11-02.md).
+
 This packet records the DATCORE public testnet deployment and gives an
 independent reviewer enough information to reproduce the read-only checks
 without trusting this document's conclusions.
@@ -39,7 +51,7 @@ compiled artifact are byte-for-byte identical, with Keccak-256
 
 The two transfer paths sent a total of 2 testnet DAT to
 `0xfbE494B465efe6d0DAFf80dC715302D0Fa0Ac5d9`. The two burn paths reduced the
-testnet supply by 2 DAT. Therefore, the expected current total supply is
+testnet supply by 2 DAT. Therefore, the expected recorded-checkpoint total supply is
 `999,999,998 DAT`; the immutable initial-supply constant remains
 `1,000,000,000 DAT`.
 
@@ -54,9 +66,12 @@ BASE_SEPOLIA_RPC_URL=https://sepolia.base.org npm run verify:base-sepolia
 ```
 
 A successful run prints `"result": "PASS"`. It independently checks the chain
-ID, deployment receipt, metadata, constants, balances, current supply, permit
+ID, deployment receipt, metadata, constants, balances, checkpoint supply, permit
 nonce, all five successful transaction receipts, normalized runtime bytecode,
-permit replay rejection, and zero-address transfer rejection.
+permit replay rejection, and zero-address transfer rejection. These are historical
+checkpoint observations, not current balances. The command does not compile;
+it uses the included reference, or accepts `--artifact` for a different file that
+must match the unchanged recorded hashes.
 
 ## Review prompt for Grok or Claude
 

@@ -382,7 +382,7 @@ token contract and must be evaluated from current on-chain records.
 Live test transactions exercised direct transfer, holder burn, EIP-2612
 permit, allowance transfer, and allowance burn. Permit replay and zero-address
 transfer rejection were also checked with non-mutating calls. The functional
-tests transferred 2 DAT and burned 2 DAT, so the current testnet supply is
+tests transferred 2 DAT and burned 2 DAT, so the recorded checkpoint supply is
 `999,999,998 DAT`; the contract's immutable initial-supply constant remains
 `1,000,000,000 DAT`.
 
@@ -401,11 +401,21 @@ allowance-based burns, unauthorized-burn rejection, EIP-2612 signed permits,
 expired and replayed permit rejection, EIP-712 domain data, and the absence of
 administrator mint, pause, upgrade, owner, and admin entry points.
 
-The live Base Sepolia checks are read-only and require no wallet key:
+The Base Sepolia verifier rechecks the recorded historical checkpoint and requires
+a matching compiled artifact. It is read-only and requires no wallet key:
 
 ```shell
 BASE_SEPOLIA_RPC_URL=https://sepolia.base.org npm run verify:base-sepolia
 ```
+
+The command no longer recompiles implicitly. It uses the included, reproduced
+historical reference artifact. A differing developer build is refused if selected
+with `--artifact`. The subsequent source LF policy also makes the ordinary DAT
+build reproduce that reference. The reproduced reference
+matches the unchanged recorded hashes and passed a public historical recheck.
+[The November 2 verifier correction](docs/SEPOLIA_VERIFIER_2026-11-02.md) explains
+the false-PASS fix, exact rejection evidence, checkpoint output and the source
+newline diagnosis. Preserve the original record and expected hashes.
 
 ## Base Sepolia deployment
 
@@ -484,7 +494,7 @@ future patent rights.
 
 ## Read-only Base Mainnet token identity verification (Ford Prefect)
 
-This repository now includes an independently executable verifier for the **existing DAT Base Mainnet ERC-20 contract**. It checks the expected chain ID, deployed bytecode, `name()`, `symbol()`, `decimals()`, and `totalSupply()` at a **single public block height**. The original issuance reference is recorded as **1000000000 DAT (18 decimals)** from the current deployed contract identity; this verifier does not mint, deploy, change supply, or modify any contract.
+This repository now includes an independently executable verifier for the **existing DAT Base Mainnet ERC-20 contract**. It checks the expected chain ID, deployed bytecode, `name()`, `symbol()`, `decimals()`, and `totalSupply()` at a **single provider-reported canonical block hash**. The original issuance reference is recorded as **1000000000 DAT (18 decimals)** from the current deployed contract identity; this verifier does not mint, deploy, change supply, or modify any contract.
 
 ```bash
 npm run check                   # compile + contract tests (including identity tests) + typecheck
@@ -492,6 +502,8 @@ npm run verify:base-mainnet     # optional live Base Mainnet read-only RPC verif
 ```
 
 The live verification uses the read-only public Base RPC (`https://mainnet.base.org`) by default. Optionally configure `BASE_MAINNET_READ_RPC_URL` for a trusted HTTPS Base Mainnet read endpoint. It does **not** access a wallet, private key, seed phrase, token allowance, transaction-signing method, or trading service. It fails with an error if the network, bytecode or deployed metadata differs, or if the current supply exceeds the issuance reference. A lower supply following burns is valid and is reported separately. A successful match confirms only this narrow identity check: **it is not an independent security audit**.
+
+The [November 2 canonical-read correction](docs/CANONICAL_IDENTITY_2026-11-02.md) requires EIP-1898 hash selectors for code and metadata, rechecks the block hash and chain after reading, and fails if the provider cannot honor that request. The runtime-code hash is an observation fingerprint, not a verified match against compiled source. CLI failures report a stable error code without printing provider URLs or response contents.
 
 A verified ERC-20 token contract is not itself a functioning AI agent, independent operating wallet, or third-party dApp integration. Work on connection to decentralized services is separately tracked in [ThreeCore-Wallet](https://github.com/FordPerfect2027/ThreeCore-Wallet). Actual wallet connection, approvals, DEX trading, transfers, and autonomous operation require separate verification and authorization. These source improvements do not affect existing Base Mainnet token contracts.
 
@@ -509,7 +521,7 @@ A short, recent 250-block window is the default. The CLI uses a public Base Main
 
 ## Read-only Wallet readiness (DAT / EMA / CAWELON)
 
-This repository includes a token-specific `src/wallet-readiness.js` adapter and `scripts/inspect-wallet-readiness.js` for checking a **public Base Mainnet wallet address**. It reads native ETH balance (potential gas funding), this token's `balanceOf`, and the **existing** ERC-20 `allowance` from that public address to the published Aerodrome Classic Router. All five reads use the same observed block height to avoid a mixed-block snapshot; both token and router contracts must have bytecode at that block. A nonzero allowance is a possible spender exposure **not a trading authorization**.
+This repository includes a token-specific `src/wallet-readiness.js` adapter and `scripts/inspect-wallet-readiness.js` for checking a **public Base Mainnet wallet address**. It reads native ETH balance (potential gas funding), this token's `balanceOf`, and the **existing** ERC-20 `allowance` from that public address to the published Aerodrome Classic Router. All five reads require the same provider-reported canonical block hash, followed by a header and network recheck; both token and router contracts must have bytecode at that block. A nonzero allowance is a possible spender exposure **not a trading authorization**.
 
 ```sh
 npm run test:read-only
@@ -534,7 +546,7 @@ The command uses a read-only HTTPS Base RPC endpoint, requires no browser-wallet
 
 ## Aerodrome Classic DEX price quotes (read-only)
 
-This token repository includes `src/dex-quote.js` and `scripts/quote-dex.js` for **fee-aware, contract-derived price quotes** on the token's existing volatile pool against native USDC on Base Mainnet. The tool checks the Aerodrome Classic `PoolFactory.getPool` and `isPool`, pool deployed bytecode, exact token pair, volatile pool status, reserves, token decimals and the pool's `getAmountOut(uint256,address)` method. **All readings are pinned to one block** and no wallet is accessed.
+This token repository includes `src/dex-quote.js` and `scripts/quote-dex.js` for **fee-aware, contract-derived price quotes** on the token's existing volatile pool against native USDC on Base Mainnet. The tool checks the Aerodrome Classic `PoolFactory.getPool` and `isPool`, pool deployed bytecode, exact token pair, volatile pool status, reserves, token decimals and the pool's `getAmountOut(uint256,address)` method. **All state readings require one canonical block hash, rechecked before returning** and no wallet is accessed.
 
 ```sh
 npm run test:read-only
@@ -603,3 +615,20 @@ This detects a differing final chain ID; it cannot prove RPC trustworthiness or
 observe a temporary chain switch that changes back. Block pinning alone is not
 cross-chain protection. No live wallet was connected and no approval, signature,
 transfer, trading action, gas expenditure or deployed token contract was changed.
+
+## Canonical balance and reference-quote reads (November 2, 2026)
+
+The [canonical-state correction](docs/CANONICAL_STATE_READS_2026-11-02.md) also covers public ETH/token balances, existing allowances and pool reference quotes. Unsupported hash selectors fail without falling back. The full read-only suite now has 194 passing cases, including the identity correction; these are regression cases, not a release-completion percentage.
+
+## History command validation (November 2, 2026)
+
+The [history CLI correction](docs/HISTORY_CLI_2026-11-02.md) rejects invalid addresses, oversized integer text and known invalid ranges before RPC. Provider failures are redacted and are not retried automatically. Full read-only coverage is now 213 passing cases per token, including positive-event CLI transport checks; this supersedes the overlapping 194-case checkpoint.
+
+
+## Read-only runtime installation (November 2, 2026)
+
+The [runtime installation correction](docs/READ_ONLY_RUNTIME_2026-11-02.md) makes viem an explicit runtime dependency. A fresh installation with development and optional dependencies omitted passes all 213 read-only cases for this token. This smaller profile does not include contract compilation tools; the full development Zod finding remains open.
+
+The five operational read-only commands now keep their 12-second request deadline through response-body consumption. See [the correction and reproducible checks](docs/RPC_BODY_DEADLINE_2026-11-02.md).
+
+[Contract source portability](docs/SOURCE_PORTABILITY_2026-11-02.md): compilation requires UTF-8/LF source bytes so platform line-ending conversion cannot silently change the candidate artifact.
